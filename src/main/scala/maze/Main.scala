@@ -8,7 +8,7 @@ import scala.util.Random
 object Main extends App {
   val grid = Grid(10, 10)
 
-  println(BinaryTree.on(grid))
+  println(Sidewinder().on(grid))
 }
 
 case class Cell(row: Int, column: Int) {
@@ -99,4 +99,38 @@ object BinaryTree {
 
     input
   }
+}
+
+class Sidewinder(rnd: => Boolean) {
+  def on(input: Grid): Grid = {
+    var collection = List.empty[Cell]
+
+    input.grid.foreach(_.foreach { cell =>
+      val north = cell.north
+      val east = cell.east
+
+      collection = collection :+ cell
+
+      if (rnd || north.isEmpty) {
+        List(east, north).flatten
+          .headOption
+          .map(cell.link(_))
+
+        if (east.isEmpty) collection = List.empty
+
+      } else {
+        Random.shuffle(collection)
+          .headOption
+          .map(randomCell => randomCell.north.map(randomCell.link(_)))
+
+        collection = List.empty
+      }
+    })
+
+    input
+  }
+}
+
+object Sidewinder {
+  def apply(): Sidewinder = new Sidewinder(Random.nextBoolean())
 }
